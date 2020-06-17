@@ -4,9 +4,8 @@ const logger = require('../logger');
 const DEFAULT_STATUS_CODE = 500;
 
 const statusCodes = {
-  [errors.DATABASE_ERROR]: 500,
-  [errors.DEFAULT_ERROR]: 500,
-  [errors.INVALID_PARAMS]: 422
+  [errors.DATABASE_ERROR]: 503,
+  [errors.DEFAULT_ERROR]: 500
 };
 
 exports.handle = (error, req, res, next) => {
