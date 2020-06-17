@@ -10,8 +10,14 @@ module.exports = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
-        isEmail: true
+        validate: {
+          isEmail: {
+            msg: 'The email provided has an incorrect format'
+          }
+        },
+        unique: {
+          msg: 'The email provided is already in use'
+        }
       },
       type: {
         type: DataTypes.ENUM(userTypes),

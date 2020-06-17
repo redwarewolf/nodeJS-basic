@@ -44,7 +44,7 @@ module.exports = {
         required: true
       },
       responses: {
-        200: {
+        201: {
           description: 'New user was created'
         },
         400: {
@@ -55,7 +55,7 @@ module.exports = {
                 $ref: '#/components/schemas/Error'
               },
               example: {
-                message: 'User´s email already exists',
+                message: 'The email provided is already in use',
                 internal_code: 'invalid_parameters'
               }
             }

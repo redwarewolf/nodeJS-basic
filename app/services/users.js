@@ -7,6 +7,6 @@ exports.createUser = data => {
 
   return User.create(data).catch(error => {
     logger.error(error);
-    throw errors.databaseError(error.message);
+    throw errors.invalidParams(error.message);
   });
 };

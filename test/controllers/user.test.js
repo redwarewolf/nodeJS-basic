@@ -37,7 +37,9 @@ describe('Users Controller', () => {
               .send(converter.objectToSnakeCase(body))
               .set('Accept', 'application/json')
               .then(res => {
-                expect(res.status).toBe(500);
+                expect(res.status).toBe(400);
+                expect(res.body.message).toBe('The email provided is already in use');
+                expect(res.body.internal_code).toBe('invalid_params');
                 done();
               });
           });
@@ -51,7 +53,7 @@ describe('Users Controller', () => {
             .send(converter.objectToSnakeCase(body))
             .set('Accept', 'application/json')
             .then(res => {
-              expect(res.status).toBe(422);
+              expect(res.status).toBe(400);
               expect(res.body.internal_code).toBe('invalid_params');
               done();
             });
