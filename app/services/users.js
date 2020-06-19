@@ -13,9 +13,13 @@ exports.createUser = data => {
 };
 
 exports.getUsers = (page, limit, request) =>
-  User.findAll({ where: request.query || {} }).then(users =>
-    nodePagination.paginate(users, request, {
-      page,
-      limit
-    })
-  );
+  User.findAll({ where: request.query || {} })
+    .then(users =>
+      nodePagination.paginate(users, request, {
+        page,
+        limit
+      })
+    )
+    .catch(err => {
+      throw errors.databaseError(err);
+    });
