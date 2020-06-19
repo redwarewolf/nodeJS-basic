@@ -35,7 +35,9 @@ const config = {
       bodySizeLimit: process.env.API_BODY_SIZE_LIMIT,
       parameterLimit: process.env.API_PARAMETER_LIMIT,
       port: process.env.PORT,
-      bcryptSaltRounds: process.env.BCRYPT_SALT_ROUNDS
+      bcryptSaltRounds: process.env.BCRYPT_SALT_ROUNDS,
+      defaultPaginationLimit: process.env.PAGINATION_LIMIT,
+      defaultPaginationPage: process.env.DEFAULT_PAGINATION_PAGE
     },
     session: {
       header_name: 'authorization',

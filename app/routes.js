@@ -12,4 +12,5 @@ exports.init = app => {
     paramsValidator.validateSchemaAndFail(schemas.users.create),
     usersController.createUser
   );
+  app.get(`${URL}/users`, usersController.getUsers);
 };

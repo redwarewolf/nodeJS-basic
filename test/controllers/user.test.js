@@ -61,4 +61,43 @@ describe('Users Controller', () => {
       });
     });
   });
+
+  describe('/GET users', () => {
+    describe('when using no query params', () => {
+      it('should list all users', done => {
+        factory.createMany('User', 5).then(() => {
+          request
+            .get('/api/v1/users')
+            .set({
+              Accept: 'application/json'
+            })
+            .then(res => {
+              expect(res.status).toBe(200);
+              expect(res.body.count).toBe(5);
+              done();
+            });
+        });
+      });
+    });
+
+    describe('when using sending query params', () => {
+      it('should list filtered users', done => {
+        factory.createMany('User', 5).then(() => {
+          factory.createMany('User', 2, { type: 'admin' }).then(() => {
+            request
+              .get('/api/v1/users')
+              .query({ type: 'admin' })
+              .set({
+                Accept: 'application/json'
+              })
+              .then(res => {
+                expect(res.status).toBe(200);
+                expect(res.body.count).toBe(2);
+                done();
+              });
+          });
+        });
+      });
+    });
+  });
 });
