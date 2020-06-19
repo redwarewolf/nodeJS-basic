@@ -8,7 +8,7 @@ We'll be using a User model  as an example to show the code's functionality.
 
 We'll start by creating a simple migration to create our model as follows:
 
-```
+``` js
 /* eslint-disable new-cap */
 
 'use strict';
@@ -77,7 +77,7 @@ module.exports = {
 
 Having our model created in the DB, We'll define it in our App:
 
-```
+``` js
 /* eslint-disable new-cap */
 const userTypes = ['regular', 'admin'];
 
@@ -125,7 +125,7 @@ module.exports = (sequelize, DataTypes) => {
 
 To declare the endpoint we'll define it as follows:
 
-```
+``` js
 const URL = '/api/v1';
 
 exports.init = app => {
@@ -147,7 +147,7 @@ The third parameter contains the logic that will be run from the controller.
 The controller's only function is to call the services that will run to create our model.
 Here we are using 3. Bcrypt for crypting hashes, a params mapper and the user service to create the model.
 
-```
+``` js
 const usersService = require('../services/users');
 const userMapper = require('../mappers/user');
 const bcrypt = require('../services/bcrypt');
@@ -166,7 +166,7 @@ exports.createUser = (req, res, next) =>
 
 This mapper will only translate the params received to a format that our API can understand:
 
-```
+``` js
 exports.create = (params, hash) => ({
   name: params.name,
   birthDate: params.birth_date,
@@ -186,7 +186,7 @@ exports.create = (params, hash) => ({
 
 And finally, creating the model:
 
-```
+``` js
 const errors = require('../errors');
 const logger = require('../logger');
 const { User } = require('../models');
@@ -206,7 +206,7 @@ exports.createUser = data => {
 
 Here we have a small definition and example of the params that the endpoint will receive:
 
-```
+``` js
 name: {
   type: 'string',
   example: 'Tom Engels'
@@ -262,13 +262,113 @@ Body: Containing the information of the created model
 
 If anything should go wrong, we'll receive an error code indicating the situation along with the message indicating the error. For example:
 
-```
+``` js
 {
   code: 400
   internal_code: 'Invalid parameters',
   message: 'The email provided is already in use'
 }
 ```
+
+## Model Indexing Endpoint
+
+We'll be using a User model  as an example to show the code's functionality.
+
+### Endpoint
+
+To declare the endpoint we'll define it as follows:
+
+``` js
+const URL = '/api/v1';
+
+exports.init = app => {
+  app.get(`${URL}/users`, usersController.getUsers);
+};
+
+```
+
+The first parameter contains the route
+The second parameter contains the logic that will be run from the controller.
+
+### Controller
+
+The controller's only function is to call the services that will run to list our model.
+Here we are using just one, the model's service.
+
+``` js
+const usersService = require('../services/users');
+
+exports.getUsers = (req, res, next) =>
+  usersService
+    .getUsers(req.headers.page, req.headers.limit, req)
+    .then(users => res.send(users))
+    .catch(error => next(error));
+
+```
+
+### Service
+
+In the user's service we'll be using one of wolox's own tools of pagination: pagination-node
+
+``` js
+const nodePagination = require('@wolox/pagination-node');
+const errors = require('../errors');
+const { User } = require('../models');
+
+exports.getUsers = (page, limit, request) =>
+  User.findAll({ where: request.query || {} })
+    .then(users =>
+      nodePagination.paginate(users, request, {
+        page,
+        limit
+      })
+    )
+    .catch(err => {
+      throw errors.databaseError(err);
+    });
+
+```
+
+Pagination-Node will take care of all the logic behind paginating the result of the query, we will only find them.
+
+### Params
+
+Headers: 
+
+- page: The page of results we want to receive
+- limit: The amount of results we want to see in one page.
+
+Query: 
+
+We can send any column corresponding to our model to filter the results.
+
+### Responses
+
+When we have a successful scenario, we'll receive:
+
+HTTP Status Code: 200 (ok)
+
+    - `page: Array` (The resulting paginated objects)
+    - `count: Number` (The total ammount of objects in the current page)
+    - `total_pages: Number` (Describes the total ammount of pages calculated, based in the total of objects sent to the paginator, and the requested limit)
+    - `total_count: Number` (The total amount of objects that the paginator received)
+    - `previous_page: Number` (The number of the previous page. Will be null if there's nothing to show)
+    - `current_page: Number` (The number of the current page that is being shown)
+    - `next_page: Number` (The number of the next page. Will be null if there's nothing to show)
+    - `previous_page_url: String url` (A string url that leads to the previous page. Will be null if there's nothing to show)
+    - `next_page_url: String url` (A string url that leads to the next page. Will be null if there's nothing to show)
+
+If anything should go wrong, we'll receive an error code indicating the situation along with the message indicating the error. For example:
+
+```
+{
+  code: 400
+  internal_code: 'database_error',
+}
+```
+
+More information about the use of Pagination-Node can be found in: https://github.com/Wolox/pagination-node
+
 
 ## How to contribute
 
